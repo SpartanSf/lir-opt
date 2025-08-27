@@ -1,4 +1,4 @@
-# opt.lua
+# opt v0.1.0
 The Lua IR optimizer
 
 Includes several optimizations:

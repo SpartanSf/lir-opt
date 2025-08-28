@@ -1,0 +1,37 @@
+{
+  "function": "multi_call_loop",
+  "header": { "numparams": 0, "is_vararg": 1, "maxstack": 8 },
+  "consts": [1, 3, 1, "print", "math.abs"],
+  "locals": ["idx", "limit", "step", "f_print", "f_abs", "arg", "tmp1", "tmp2"],
+  "blocks": [
+    {
+      "name": "entry",
+      "instrs": [
+        { "op": "const", "dst": "idx",   "c": 0 },
+        { "op": "const", "dst": "limit", "c": 1 },
+        { "op": "const", "dst": "step",  "c": 2 },
+        { "op": "for_prep", "idx": "idx", "loop": "loop" }
+      ]
+    },
+    {
+      "name": "body",
+      "instrs": [
+        { "op": "getfield_env", "dst": "f_print", "key_c": 3 },
+        { "op": "getfield_env", "dst": "f_abs",   "key_c": 4 },
+        { "op": "move", "dst": "arg", "src": "idx" },
+        { "op": "call", "func": "f_abs", "args": ["arg"], "dst": "tmp1", "nret": 1 },
+        { "op": "call", "func": "f_print", "args": ["tmp1"], "dst": "tmp2", "nret": 1 }
+      ]
+    },
+    {
+      "name": "loop",
+      "instrs": [
+        { "op": "for_loop", "idx": "idx", "body": "body" },
+        { "op": "ret", "args": ["idx"] }
+      ]
+    }
+  ],
+  "upvalues": [
+    { "name": "U0", "info": "L0 R0" }
+  ]
+}

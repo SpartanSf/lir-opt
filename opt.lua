@@ -21,7 +21,7 @@ local args = {...}
 local opt_passes = {}
 
 if not (#args >= 3) then
-    print("opt.lua [source] [dest] [optimizations -ube, -cf, -ms, -lvp, -ssad, -lcp, -pep, -mb, -rucu, OR -all]")
+    print("opt.lua [source] [dest] [optimizations -ube, -cf, -ms, -lvp, -ssad, -lcp, -pep, -mb, -rucu, OR -all, -order <comma seperated list>, -limit <pass limit>]")
 end
 
 local ir = read_ir(args[1])
@@ -570,16 +570,51 @@ local opt_passes_funcs = {
     rucu = remove_ucu,
 }
 
+local order = {
+	"ube",
+	"cf",
+	"rucu",
+	"lvp",
+	"lcp",
+	"ssad",
+	"ms",
+	"mb",
+	"pep",
+}
+
+local limit = 10
+
 local all_mode = false
-for i = 3, #args do
-    if args[i] == "-all" then
-        all_mode = true
-    else
-        local name = args[i]:sub(2)
-        if opt_passes_funcs[name] then
-            opt_passes[name] = true
-        end
-    end
+do
+	local i = 3
+	while i <= #args do
+		if args[i] == "-all" then
+			all_mode = true
+		elseif args[i] == "-order" then
+			local list = assert(args[i+1], "missing order")
+			i = i + 1
+
+			order = {}
+			-- not my best code
+			for thing in string.gmatch(list .. ",", "([^,]+),") do
+				if not opt_passes_funcs[thing] then
+					error("Unknown optimization: " .. thing)
+				end
+				table.insert(order, thing)
+			end
+		elseif args[i] == "-limit" then
+			local limStr = assert(args[i+1], "missing limit")
+			i = i + 1
+			limit = assert(tonumber(limStr), "bad limit")
+			if limit < 0 then limit = math.huge end -- huge optimization
+		else
+			local name = args[i]:sub(2)
+			if opt_passes_funcs[name] then
+				opt_passes[name] = true
+			end
+		end
+		i = i + 1
+	end
 end
 
 if all_mode then
@@ -593,13 +628,13 @@ local function optimize(ir)
 
     local changed = true
     local iter = 0
-    while changed and iter < 10 do
+    while changed and iter < limit do
         iter = iter + 1
         changed = false
 
-        for name, func in pairs(opt_passes_funcs) do
+        for _, name in ipairs(order) do
             if opt_passes[name] then
-                local n = func(ir)
+                local n = opt_passes_funcs[name](ir)
                 changed = changed or (n and n > 0)
             end
         end

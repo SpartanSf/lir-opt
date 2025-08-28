@@ -46,3 +46,7 @@ The optimizer iterates multiple times until no further changes are detected.
 * `-limit` - Sets the limit for iteration on changes
 
 The optimizer will only iterate the set number of times.
+
+* `-order ..,..,...` - Sets the order of the optimizations to complete
+
+The optimizer will iterate over these optimizations.

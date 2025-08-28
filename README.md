@@ -1,4 +1,4 @@
-# opt v0.1.0
+# opt v0.1.1
 The Lua IR optimizer
 
 Includes several optimizations:
@@ -42,3 +42,7 @@ Includes several optimizations:
 * `-all` applies all available optimizations in a single pass.
 
 The optimizer iterates multiple times until no further changes are detected.
+
+* `-limit` - Sets the limit for iteration on changes
+
+The optimizer will only iterate the set number of times.
